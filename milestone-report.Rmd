@@ -1,0 +1,26 @@
+---
+title: "Data Science Capstone - Milestone Report"
+author: "Gaston Dario Napoli"
+date: "May 1, 2017"
+output: 
+    html_document:
+        toc: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## 1) Introduction
+
+This document corresponds to the ***Milestone Report***, assignment of week 2, [***Data Science Capstone***](https://www.coursera.org/learn/data-science-project) course from [***Coursera***](https://www.coursera.org/). This course, the 10th out of 10 courses comprising the [***Data Science Specialization***](<https://www.coursera.org/specializations/jhu-data-science>) from the [***John Hopkins University***](https://www.jhu.edu/), allows students to create a usable/public data product that can be used to show your skills to potential employers. Projects will be drawn from real-world problems and will be conducted with industry, government, and academic partners.
+
+The ***Data Science Capstone*** project aims to develop a [***Shiny***](https://shiny.rstudio.com) app that takes as input a phrase (multiple words), one clicks submit, and it will predict the next word. In order to achive that, the [***course dataset***](https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip) will be used as a training set, as well as NPL techniques will be applied to analyse and build the corresponding predictive model.
+
+## 2) Dataset
+
+
+## Apendix I - Source codes
+
+The source codes that generates the present document can be found at: <https://github.com/laplata2003/data-science-capstone-week2-milestone-report>.
+
