@@ -1,7 +1,7 @@
 ---
 title: "Data Science Capstone - Milestone Report"
 author: "Gaston Dario Napoli"
-date: "May 1, 2017"
+date: "May 11, 2017"
 output: 
     html_document:
         toc: true
@@ -19,8 +19,44 @@ The ***Data Science Capstone*** project aims to develop a [***Shiny***](https://
 
 ## 2) Dataset
 
+Borrowing from the course [dataset information](https://www.coursera.org/learn/data-science-project/supplement/Iimbd/task-0-understanding-the-problem), the data comes from a corpus called ***HC Corpora*** (the original site is not reachable, but an archive of it can be seen at https://web-beta.archive.org/web/20160930083655/http://www.corpora.heliohost.org/aboutcorpus.html).  ***corpora*** are collected from publicly available sources by a web crawler.
+
+As said before, the dataset can be downloaded from https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip, and consists, once being downloaded and uncompressed, of 4 folders corresponding to 4 different languages (german,english, finish and russian), and each folder containing 3 files from 3 different text sources (blogs, news and Twitter). Next, a summary table of each file can be seen (file stats plus **wc** command data):
+
+```{r echo=FALSE}
+library(knitr)
+library(stringr)
+
+setwd("D:/OneDrive/Documentos/Coursera/Capstone/Material")
+
+# Get the file list
+listOfFiles <- dir(recursive = TRUE)
+
+# Get the file stat list from each file
+listOfFileInfos <- file.info(listOfFiles)
+
+# Generate three new columns in otrder to comple with 'wc' command execution data
+listOfFileInfos$lineCount <- 0
+listOfFileInfos$wordCount <- 0
+listOfFileInfos$characterCount <- 0
+
+# Complete de file stats with the 'wc' command data
+for (file in listOfFiles) {
+    wcCommandResults <- str_split(system(paste0("wc ", file), intern = TRUE),  boundary("word"))[[1]]
+	
+    listOfFileInfos[file,]$lineCount <- wcCommandResults[1]
+    listOfFileInfos[file,]$wordCount <- wcCommandResults[2]
+    listOfFileInfos[file,]$characterCount <- wcCommandResults[3]
+}
+
+# Show a formatted table
+kable(listOfFileInfos[,c("size", "ctime", "lineCount", "wordCount", "characterCount")])
+
+```
+
+In the context of the Capstone project, only the english language files will be taken into account.
 
 ## Apendix I - Source codes
 
-The source codes that generates the present document can be found at: <https://github.com/laplata2003/data-science-capstone-week2-milestone-report>.
+This document has been generated using [***R Mardown***](http://rmarkdown.rstudio.com/). Its ***.Rmd*** source code that can be found at: <https://github.com/laplata2003/data-science-capstone-week2-milestone-report>.
 
