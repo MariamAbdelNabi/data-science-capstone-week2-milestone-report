@@ -1,14 +1,18 @@
 ---
 title: "Data Science Capstone - Milestone Report"
 author: "Gaston Dario Napoli"
-date: "May 11, 2017"
+date: "May 12, 2017"
 output: 
     html_document:
         toc: true
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+library(knitr)
+library(stringr)
+
+knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(cache = TRUE)
 ```
 
 ## 1) Introduction
@@ -18,20 +22,33 @@ This document corresponds to the ***Milestone Report***, assignment of week 2, [
 The ***Data Science Capstone*** project aims to develop a [***Shiny***](https://shiny.rstudio.com) app that takes as input a phrase (multiple words), one clicks submit, and it will predict the next word. In order to achive that, the [***course dataset***](https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip) will be used as a training set, as well as NPL techniques will be applied to analyse and build the corresponding predictive model.
 
 ## 2) Dataset
+### 2.1) Description
 
 From the [course dataset information](https://www.coursera.org/learn/data-science-project/supplement/Iimbd/task-0-understanding-the-problem), the data comes from a corpus called ***HC Corpora*** (the original site is not reachable, but an archive of it can be seen at https://web-beta.archive.org/web/20160930083655/http://www.corpora.heliohost.org/aboutcorpus.html).  ***Corpora*** are collected from publicly available sources by a web crawler.
 
-As said before, the dataset can be downloaded from https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip, and consists, once being downloaded and uncompressed, of 4 folders corresponding to 4 different languages (german,english, finish and russian), and each folder containing 3 files from 3 different text sources (blogs, news and Twitter). Next, a summary table of each file can be seen (file stats plus **wc** command data):
+As said before, the dataset can be downloaded from https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip, and consists, once being downloaded and uncompressed, of 4 folders corresponding to 4 different languages (german,english, finish and russian), and each folder containing 3 files from 3 different text sources (blogs, news and Twitter):
 
-```{r echo=FALSE}
-library(knitr)
-library(stringr)
+```{r results='asis'}
 
-setwd("D:/OneDrive/Documentos/Coursera/Capstone/Material")
+# Auxiliary function. It allows to show a list as bullets (use of results='asis' is mandatory)
+showBullets <- function(listOfValues) {
+    for (i in listOfValues){
+        cat("-", i, "\n")
+    }
+}
 
 # Get the file list
-listOfFiles <- dir(recursive = TRUE)
+listOfFiles <- dir("HC_Corpora", recursive = TRUE, full.names = TRUE)
 
+# Show the list as bullets
+showBullets(listOfFiles)
+```
+
+
+### 2.2) Analysis
+Our analysis starts with a summary table including, for each file in the bundle, file stats (size in bytes) and ***wc*** command data (i.e. lines, words and characters counting):
+
+```{r}
 # Get the file stat list from each file
 listOfFileInfos <- file.info(listOfFiles)
 
@@ -44,9 +61,9 @@ listOfFileInfos$characterCount <- 0
 for (file in listOfFiles) {
     wcCommandResults <- str_split(system(paste0("wc ", file), intern = TRUE),  boundary("word"))[[1]]
 	
-    listOfFileInfos[file,]$lineCount <- wcCommandResults[1]
-    listOfFileInfos[file,]$wordCount <- wcCommandResults[2]
-    listOfFileInfos[file,]$characterCount <- wcCommandResults[3]
+    listOfFileInfos[file,]$lineCount <- as.numeric(wcCommandResults[1])
+    listOfFileInfos[file,]$wordCount <- as.numeric(wcCommandResults[2])
+    listOfFileInfos[file,]$characterCount <- as.numeric(wcCommandResults[3])
 }
 
 # Show a formatted table
@@ -54,7 +71,15 @@ kable(listOfFileInfos[,c("size", "ctime", "lineCount", "wordCount", "characterCo
 
 ```
 
-In the context of the Capstone project, only the english language files will be taken into account.
+In the context of the Capstone project, only the english language files will be taken into account, that is to say, the files with the ***en_US*** prefix:
+
+```{r results='asis'}
+
+englishFiles <- listOfFiles[startsWith(listOfFiles, "HC_Corpora/en_US")]
+showBullets(englishFiles)
+
+```
+
 
 ## Apendix I - Source codes
 
