@@ -1,7 +1,7 @@
 ---
 title: "Data Science Capstone - Milestone Report"
 author: "Gaston Dario Napoli"
-date: "May 12, 2017"
+date: "May 13, 2017"
 output: 
     html_document:
         toc: true
@@ -10,9 +10,11 @@ output:
 ```{r setup, include=FALSE}
 library(knitr)
 library(stringr)
+library(tibble)
+library(kableExtra)
 
-knitr::opts_chunk$set(echo = FALSE)
-knitr::opts_chunk$set(cache = TRUE)
+knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, cache = TRUE)
+options(knitr.table.format = "html") 
 ```
 
 ## 1) Introduction
@@ -28,57 +30,91 @@ From the [course dataset information](https://www.coursera.org/learn/data-scienc
 
 As said before, the dataset can be downloaded from https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip, and consists, once being downloaded and uncompressed, of 4 folders corresponding to 4 different languages (german,english, finish and russian), and each folder containing 3 files from 3 different text sources (blogs, news and Twitter):
 
-```{r results='asis'}
-
-# Auxiliary function. It allows to show a list as bullets (use of results='asis' is mandatory)
-showBullets <- function(listOfValues) {
-    for (i in listOfValues){
-        cat("-", i, "\n")
-    }
-}
-
+```{r message=FALSE}
 # Get the file list
 listOfFiles <- dir("HC_Corpora", recursive = TRUE, full.names = TRUE)
 
 # Show the list as bullets
-showBullets(listOfFiles)
+kable(cbind(
+          seq(1, length(listOfFiles)), 
+          listOfFiles), 
+      col.names = c('#', 'File')) %>%
+      kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive", "bordered"), 
+          full_width = FALSE)
 ```
+Next, a couple of sample lines of Twitter files are shown:
 
-
-### 2.2) Analysis
-Our analysis starts with a summary table including, for each file in the bundle, file stats (size in bytes) and ***wc*** command data (i.e. lines, words and characters counting):
-
+ - ***de_DE.twitter.txt***:
 ```{r}
-# Get the file stat list from each file
-listOfFileInfos <- file.info(listOfFiles)
+connnectionBlogsFile <- file("HC_Corpora/de_DE/de_DE.twitter.txt", "r")
+readLines(connnectionBlogsFile, 3)
+close(connnectionBlogsFile)
+```
+ - ***en_US.twitter.txt***:
+```{r}
+connnectionBlogsFile <- file("HC_Corpora/en_US/en_US.twitter.txt", "r")
+readLines(connnectionBlogsFile, 3)
+close(connnectionBlogsFile)
+```
+There exist special characters in the texts, for example question marks. Due to that, they should be taken into account to be discarded in further cleaning data stages.
+ 
+### 2.2) Dataset details
+Our analysis starts with a summary table including, for each file in the bundle, file stats (size in bytes) and data derived from the execution of the ***wc*** command (i.e. lines and words counting, and words per line ratio):
 
-# Generate three new columns in otrder to comple with 'wc' command execution data
+```{r message=FALSE}
+# Get the file stat list from each file
+listOfFileInfos <- data.frame(file = listOfFiles, size = file.info(listOfFiles)$size)
+listOfFileInfos$sizeInMB <- round(listOfFileInfos$size / (1024 * 1024), digits = 2)
+
+# Generate four new columns in order to be completed with 'wc' command execution data
 listOfFileInfos$lineCount <- 0
 listOfFileInfos$wordCount <- 0
-listOfFileInfos$characterCount <- 0
+listOfFileInfos$wordsPerLineRatio <- 0
+
+# adding a column in order to show the file language
+listOfFileInfos <- listOfFileInfos %>%
+  rowwise() %>% 
+  mutate(language = 
+           ifelse(str_detect(file, "en_US"), 'English', 
+             ifelse(str_detect(file, "de_DE"), 'German',
+               ifelse(str_detect(file, "fi_FI"), 'Finnish',
+                 ifelse(str_detect(file, "ru_RU"), 'Russian', 'not-defined')))))
+
+# Auxiliary function. It allows get data from files using the 'wc' command.
+executeWc <- function(x) as.numeric(str_split(system(paste0("wc ", x), intern = TRUE),  boundary("word"))[[1]][1:2])
 
 # Complete de file stats with the 'wc' command data
-for (file in listOfFiles) {
-    wcCommandResults <- str_split(system(paste0("wc ", file), intern = TRUE),  boundary("word"))[[1]]
-	
-    listOfFileInfos[file,]$lineCount <- as.numeric(wcCommandResults[1])
-    listOfFileInfos[file,]$wordCount <- as.numeric(wcCommandResults[2])
-    listOfFileInfos[file,]$characterCount <- as.numeric(wcCommandResults[3])
+for (index in 1:nrow(listOfFileInfos)) {
+  wcCommandResults <- executeWc(listOfFileInfos[index,]$file)
+  
+  listOfFileInfos[index,]$lineCount <- wcCommandResults[1]
+  listOfFileInfos[index,]$wordCount <- wcCommandResults[2]
+  listOfFileInfos[index,]$wordsPerLineRatio <- round(wcCommandResults[2] / wcCommandResults[1], digits = 2)
 }
 
+columNamesToShow <- c('File', 'Size', 'Size in MB', 'Line count', 'Word count', 'W/L ratio', 'Language')
+
 # Show a formatted table
-kable(listOfFileInfos[,c("size", "ctime", "lineCount", "wordCount", "characterCount")])
+kable(listOfFileInfos, col.names = columNamesToShow)  %>%
+      kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive", "bordered"), 
+          full_width = FALSE)
 
 ```
 
-In the context of the Capstone project, only the english language files will be taken into account, that is to say, the files with the ***en_US*** prefix:
+In the context of the Capstone project, only the english language files will be taken into account, that is:
 
 ```{r results='asis'}
+# Select files in english language
+englishFiles <- listOfFileInfos[listOfFileInfos$language == "English",]
 
-englishFiles <- listOfFiles[startsWith(listOfFiles, "HC_Corpora/en_US")]
-showBullets(englishFiles)
+# Show a formatted table
+kable(englishFiles, col.names = columNamesToShow)%>%
+      kable_styling(bootstrap_options = c("striped", "hover", "condensed", "responsive", "bordered"), 
+          full_width = FALSE)
 
 ```
+
+
 
 
 ## Apendix I - Source codes
