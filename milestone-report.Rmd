@@ -1,7 +1,7 @@
 ---
 title: "Data Science Capstone - Milestone Report"
-author: "Gaston Dario Napoli"
-date: "May 14, 2017"
+author: "Mariam AbdelNabi"
+date: "April 29, 2021"
 output: 
     html_document:
         toc: true
@@ -213,7 +213,7 @@ corpus <- tm_map(corpus, toSpace, ":")
 # For non-standard puntuations, borrowed from:
 #     https://eight2late.wordpress.com/2015/05/27/a-gentle-introduction-to-text-mining-using-r/
 corpus <- tm_map(corpus, toSpace, "`")
-corpus <- tm_map(corpus, toSpace, "´")
+corpus <- tm_map(corpus, toSpace, "Â´")
 corpus <- tm_map(corpus, toSpace, " -")
 
 # Special single quotes
@@ -405,7 +405,7 @@ With this data, the amount of unique words for a coverge of 50% is ***`r findAmo
 
 * *How do you evaluate how many of the words come from foreign languages?*
 
-The English language does not use special letters or accents (no more than the ASCII characters), and this feature can get a way to detect non-english words. It can be achieved trying to detect words containing accents/umlauts(e.g. ***ó***, ***ü***) or non-english letter (e.g. ***ß*** or Slavic letters), taking into account that these letters can be found in the character encoding ***ISO/IEC 8859-1*** (also known as Latin-1), and a special tag can be set when a special letter is detected. Next, an example of it can be done:
+The English language does not use special letters or accents (no more than the ASCII characters), and this feature can get a way to detect non-english words. It can be achieved trying to detect words containing accents/umlauts(e.g. ***Ã³***, ***Ã¼***) or non-english letter (e.g. ***ÃŸ*** or Slavic letters), taking into account that these letters can be found in the character encoding ***ISO/IEC 8859-1*** (also known as Latin-1), and a special tag can be set when a special letter is detected. Next, an example of it can be done:
 ```{r non-english-words, echo=TRUE}
 
 # Return a data frame with 2 column, word and valid (TRUE for words in English, FALSE otherwise)
@@ -424,12 +424,12 @@ detectNonEnglishWords <- function(line) {
   wordsDF
 }
 ```
-An example applying text ***'The Fußball is the King of Sports'*** (using ***Fußball*** in German instead of ***Football*** in English)
+An example applying text ***'The FuÃŸball is the King of Sports'*** (using ***FuÃŸball*** in German instead of ***Football*** in English)
 ```{r non-english-words-2, echo=TRUE}
-originalText <- 'The Fußball is the King of Sports'
+originalText <- 'The FuÃŸball is the King of Sports'
 originalText
 
-detectNonEnglishWords('The Fußball is the King of Sports')
+detectNonEnglishWords('The FuÃŸball is the King of Sports')
 ```
 This function can be used for removing non-english words as well:
 ```{r non-english-words-3, echo=TRUE}
@@ -441,10 +441,10 @@ removeNonEnglishWords <- function(line) {
   filteredLine
 }
 
-originalText <- 'The Fußball is the King of Sports'
+originalText <- 'The FuÃŸball is the King of Sports'
 originalText
 
-removeNonEnglishWords('The Fußball is the King of Sports')
+removeNonEnglishWords('The FuÃŸball is the King of Sports')
 ```
 
 
